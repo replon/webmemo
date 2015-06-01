@@ -12,7 +12,6 @@ import java.util.Scanner;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.boot.logging.log4j.Log4JLoggingSystem;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,15 +20,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.sun.media.jfxmedia.logging.Logger;
-
 @Controller
 public class WebmemoController {
 	
 	@RequestMapping("/")
 	public String main(){
 
-		Logger.logMsg(Logger.INFO, "ACCESS");
 		System.out.println("ACCESS");
 		printIP();
 		
@@ -65,7 +61,6 @@ public class WebmemoController {
 	@RequestMapping(value="/del", method=RequestMethod.POST)
 	public @ResponseBody String onDel(@RequestParam(value="title") String title){
 
-		Logger.logMsg(Logger.INFO, "DELETE : ["+title+"]");
 		System.out.println("DELETE : ["+title+"]");
 		printIP();
 		
@@ -121,7 +116,6 @@ public class WebmemoController {
 	@RequestMapping(value="/file", method=RequestMethod.GET)
 	public @ResponseBody String onGet(@RequestParam(value="title") String title){
 
-		Logger.logMsg(Logger.INFO, "READ : ["+title+"]");
 		System.out.println("READ : ["+title+"]");
 		printIP();
 		
@@ -158,7 +152,6 @@ public class WebmemoController {
 			@RequestParam(value="title") String title
 			) {
 		
-		Logger.logMsg(Logger.INFO, "WRITE : ["+title+"]\n"+text);
 		System.out.println("WRITE : ["+title+"]\n"+text);
 		printIP();
 		
