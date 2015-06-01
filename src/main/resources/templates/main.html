@@ -1,0 +1,107 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Woogie Memo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"/>
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+	<img src="../../webapp/resources/images/notepad.png" th:src="@{/resources/images/notepad.png}" width="100px"/>
+    <div class="panel panel-default" id="div_editor_panel">
+	  <div class="panel-body">
+	  	<input type="text" size="10" class="form-control" id="title" placeholder="Your/Secret/Path/Filename" oninput="onInput();" onblur="checkFile();"/>
+		<textarea  class="form-control" rows="10" id="content" oninput="onInput();"></textarea>
+		<button class="btn btn-default" style="margin:5px 0 0 0;" onclick="onSave();" id="btn_save">Save</button>
+	  </div>
+	</div>
+ 	<div class="well">
+		<h4>Public Files</h4>
+		<ul id="ul_files"></ul>
+  	</div>
+</body>
+<script th:inline="javascript">
+/*<![CDATA[*/
+    
+    function autoFixTitle(){
+		var title = $('#title').val();
+		var text = $('#content').val();
+		while(title.indexOf(' ') != -1){
+			title = title.replace(' ', '');
+		}
+		var filename = title.length>0 ? 
+				(title.indexOf('.')!=-1 ? title : title+".txt") 
+				: text.length>0 ? text.split('\n')[0].split(' ')[0]+".txt" : "";
+		
+		$('#title').val(filename);
+	}
+    
+	function onSave(){
+		if($('#btn_save').attr("disabled") == true)
+			return;
+		
+		if($('#content').val().trim()=="")
+			return;
+		
+		autoFixTitle();
+		
+		var text = $('#content').val();
+		var title = $('#title').val();
+
+		$('#div_editor_panel *').attr("disabled", true);
+		$.post( "/file", { text:text, title:title }).done(function(data) {
+			$('#div_editor_panel *').attr("disabled", false);
+			if(data=="ok"){
+				$('#btn_save').html("Saved!");
+				$('#btn_save').attr("disabled", true);
+				getPublicFileList();
+			} else if(data.startsWith("error")){
+				alert(data);
+			} 
+		});
+	}
+	
+	function onInput(){
+		$('#btn_save').html("Save");
+		$('#btn_save').attr("disabled", false);
+	}
+	
+	function checkFile(){
+		autoFixTitle();
+		var title = $('#title').val();
+		
+		$.get( "/file", { title:title }).done(function(data) {
+			if(data!=""){
+				$('#content').val(data);
+				
+			}
+		});
+	}
+	
+	function loadFile(name){
+		console.log("aa");
+		$('#title').val(name);
+		checkFile();
+	}
+	
+	var test;
+	function getPublicFileList(){
+		$.get( "/dir").done(function(data) {
+			if(data){
+				var html = "";
+				var size = data.length;
+				for(var i=0; i<size; i++){
+					html+="<li><button class='btn btn-xs btn-link' onclick='loadFile(\""+data[i]+"\");'>"+data[i]+"</button></li>";
+				}
+				$('#ul_files').html(html);
+				test= data[0];
+			}
+		});
+	}
+	getPublicFileList();
+	
+/*]]>*/
+</script>
+</html>
