@@ -31,6 +31,12 @@
 		while(title.indexOf(' ') != -1){
 			title = title.replace(' ', '');
 		}
+		while(title.indexOf('*') != -1){
+			title = title.replace('*', '');
+		}
+		while(title.indexOf('..') != -1){
+			title = title.replace('..', '');
+		}
 		var filename = title.length>0 ? 
 				(title.indexOf('.')!=-1 ? title : title+".txt") 
 				: text.length>0 ? text.split('\n')[0].split(' ')[0]+".txt" : "";
@@ -60,7 +66,10 @@
 			} else if(data.startsWith("error")){
 				alert(data);
 			} 
+
+			document.getElementById('content').focus();
 		});
+		
 	}
 	
 	function onInput(){
@@ -81,19 +90,40 @@
 	}
 	
 	function loadFile(name){
-		console.log("aa");
 		$('#title').val(name);
 		checkFile();
 	}
 	
+	function deleteFile(name){
+
+		var button = $("button[onclick='deleteFile(\""+name+"\");']");
+		button.html("Confirm");
+		button.attr('class', 'btn btn-xs btn-danger');
+		button.attr('onclick', 'deleteFileConfirm(\"'+name+'\");');
+		
+		setTimeout(function(){ 
+			button.html("Del");
+			button.attr('class', 'btn btn-xs btn-default');
+			button.attr('onclick', 'deleteFile(\"'+name+'\");');
+			}, 2000);
+	}
+
+	function deleteFileConfirm(name){
+
+		$.post( "/del", { title:name }).done(function(data) {
+			getPublicFileList();
+		});
+	}
+	
+	
 	var test;
 	function getPublicFileList(){
-		$.get( "/dir").done(function(data) {
+		$.get( "/publics").done(function(data) {
 			if(data){
 				var html = "";
 				var size = data.length;
 				for(var i=0; i<size; i++){
-					html+="<li><button class='btn btn-xs btn-link' onclick='loadFile(\""+data[i]+"\");'>"+data[i]+"</button></li>";
+					html+="<li><button tabindex='-1' class='btn btn-xs btn-link' onclick='loadFile(\""+data[i]+"\");'>"+data[i]+"</button><button tabindex='-1' class='btn btn-xs btn-default' onclick='deleteFile(\""+data[i]+"\");'>Del</button></li>";
 				}
 				$('#ul_files').html(html);
 				test= data[0];

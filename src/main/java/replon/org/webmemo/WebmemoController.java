@@ -25,8 +25,12 @@ public class WebmemoController {
 	}
 	
 
-	@RequestMapping(value="/dir", method=RequestMethod.GET)
-	public @ResponseBody String[] onGetDir(){
+	/**
+	 * Load Public Files
+	 * @return
+	 */
+	@RequestMapping(value="/publics", method=RequestMethod.GET)
+	public @ResponseBody String[] onGetPublics(){
 		
 		String[] files = null;
 		File dataDir = new File("data");
@@ -46,11 +50,59 @@ public class WebmemoController {
 		return files;
 	}
 
+	@RequestMapping(value="/del", method=RequestMethod.POST)
+	public @ResponseBody String onDel(@RequestParam(value="title") String title){
+		
+		if(title.contains("..") || title.contains("*") )
+			return "DON'T TEST ME!";
+		
+		try(FileInputStream fis = new FileInputStream("data/"+title);
+			BufferedInputStream bis = new BufferedInputStream(fis);
+			Scanner sc = new Scanner(bis);){
+			
+			
+			File file = new File("del/"+title);
+			
+			if(!file.getParentFile().exists()){
+				file.getParentFile().mkdirs();
+			}
+			
+			FileOutputStream fos = new FileOutputStream(file);
+			BufferedOutputStream bos = new BufferedOutputStream(fos);
+
+			while(sc.hasNextLine()){
+				System.out.println("aa");
+				bos.write(sc.nextLine().getBytes());
+			}
+			
+			bos.close();
+			fos.close();
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return "error";
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "error";
+		}
+
+		try{
+			File toDel = new File("data/"+title);
+			toDel.delete();
+		} catch (Exception e){
+			e.printStackTrace();
+			return "error";
+			
+		}
+		
+		return "ok";
+	}
+
 	@RequestMapping(value="/file", method=RequestMethod.GET)
 	public @ResponseBody String onGet(@RequestParam(value="title") String title){
 		
 		if(title.contains("..") || title.contains("*") )
-			return "WRONG PATH OR FILENAME!";
+			return "DON'T TEST ME!";
 		
 		String result = "";
 		try(FileInputStream fis = new FileInputStream("data/"+title);
