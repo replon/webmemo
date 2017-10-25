@@ -122,6 +122,9 @@
 			if(data){
 				var html = "";
 				var size = data.length;
+				if(data.length > 0){
+					data.sort()
+				}
 				for(var i=0; i<size; i++){
 					html+="<li><button tabindex='-1' class='btn btn-xs btn-link' onclick='loadFile(\""+data[i]+"\");'>"+data[i]+"</button><button tabindex='-1' class='btn btn-xs btn-default' onclick='deleteFile(\""+data[i]+"\");'>Del</button></li>";
 				}
